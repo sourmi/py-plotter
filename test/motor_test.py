@@ -1,25 +1,7 @@
 import motor
 import unittest
 
-
 class TestMotor(unittest.TestCase):
-
-    class TestGpio(motor.Gpio):
-
-        __commands = []
-    
-        def output(self, pin, value):
-            #print("output", pin,"=", value)
-            self.__commands.append([pin, value])
-
-        def init(self, pin):
-            pass
-
-        def getCommands(self):
-            return self.__commands
-
-        def clear(self):
-            self.__commands = []
 
     __gpio = motor.Gpio
     __motor= motor.Motor

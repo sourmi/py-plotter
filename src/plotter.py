@@ -13,13 +13,23 @@ class Plotter:
         self.__motorY = motorY
         self.__x = 0
         self.__y = 0
+
+    def line(self, startX, startY, endX, endY):
+        self.moveTo( startX, startY)
+        self.lineTo(endX, endY)
+        
     
     def lineTo(self, x, y):
         self.plotOn()
-        self.moveTo( x, y)
+        self._move( x, y)
         
     
     def moveTo(self, x, y):
+        self.plotOff()
+        self._move( x, y)
+
+        
+    def _move(self, x, y):
         steps = max(abs(self.__x -x), abs(self.__y -y))
         if (steps==0):
             return
@@ -35,15 +45,15 @@ class Plotter:
             ry = round(ty)
             #print tx, ty, '/', rx, ry, '/', self.__x, self.__y
             if rx <> self.__x:
-                self.__move(self.__motorX, dx)
+                self.__doStep(self.__motorX, dx)
                 self.__x = rx
             if ry <> self.__y:
-                self.__move(self.__motorY, dy)
+                self.__doStep(self.__motorY, dy)
                 self.__y = ry
 
 
 
-    def __move(self, motor, direction):
+    def __doStep(self, motor, direction):
         if (direction>0):
             motor.moveForward()
         else:

@@ -49,10 +49,10 @@ class FourPinStepperMotor(Motor):
         self.__setPinStates([0,0,0,0])
 
     def moveForward(self, steps=1):
-        self.__move(1, steps)
+        self.__doStep(1, steps)
 
     def moveBackward(self, steps=1):
-        self.__move(-1, steps)
+        self.__doStep(-1, steps)
 
 
     def __init__(self, gpio, pin1, pin2, pin3, pin4, delay):
@@ -87,7 +87,7 @@ class FourPinStepperMotor(Motor):
                 self.__setPinState(self.__pins[i], values[i])
 
 
-    def __move(self, direction, steps=1):
+    def __doStep(self, direction, steps=1):
         #set initial position
         if not self.__counter:
             self.__counter = 0
