@@ -24,7 +24,7 @@ class Gpio:
         # GPIO.setup(pin, GPIO.OUT)
 
 
-class FourPinStepperMotor:
+class FourPinStepperMotor(Motor):
 
     __MIN_MOVE_DELAY = 0.001
     _delay = __MIN_MOVE_DELAY
