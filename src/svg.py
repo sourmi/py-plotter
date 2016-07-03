@@ -5,6 +5,8 @@ class svgParser:
     __fileName = ''
     __plotter = None
     __commands = []
+    width = 0
+    heigth = 0
 
     def __init__(self):
         __commands = []
@@ -12,26 +14,36 @@ class svgParser:
     def getCommands(self):
         return self.__commands
     
-    def clearCommands(self):
+    def clear(self):
         self.__commands = []
+        self.width = 0
+        self.heigth = 0
         
     def parseFile(self, fileName):
         self.__fileName=fileName
         tree = ET.parse(fileName)
         root = tree.getroot()
-        print "root: ", self.__removeNS(root.tag),"viewBox: ", root.get('viewBox')
-        self.__printChilds(root, '')
+        vb = root.get('viewBox')
+        if not vb:
+            print "no viewBox defined!"
+        else: 
+            self.width = vb.split()[2]
+            self.heigth = vb.split()[3]
+            print "viewBox: "+ vb +"("+ self.width+"/"+ self.heigth+")"
+        self.__parseChilds(root, '')
     
     def printLine(self, x1, y1, x2, y2):
         self.__append("M", x1, y1)
         self.__append("L", x2, y2)
     
     def printRect(self, x, y, width, heigth):
-        self.__append("M", x, y)
-        self.__append("L", x, heigth)
-        self.__append("L", width, heigth)
-        self.__append("L", width, y)
-        self.__append("L", x, y)
+        x2 = str(int(x) + int(width))
+        y2 = str(int(y) + int(heigth))
+        self.__append("M", x , y )
+        self.__append("L", x , y2)
+        self.__append("L", x2, y2)
+        self.__append("L", x2, y )
+        self.__append("L", x , y )
     
     def printPath(self, d):
         parts = str(d).split()
@@ -54,9 +66,18 @@ class svgParser:
     def __append(self, mode, coords1, coords2=None):
         if not coords2:
             self.__commands.append(mode+" "+ coords1)
+            self.__checkSize(coords1.split(',')[0], coords1.split(',')[1])
         else:
             self.__commands.append(mode+" "+ coords1+","+coords2)
+            self.__checkSize(coords1, coords2)
     
+    def __checkSize(self, px, py):
+        x = int(px)
+        y = int(py)
+        if self.width<x:
+            self.width = x
+        if self.heigth<y:
+            self.heigth = y
     
     def __removeNS(self, tag):
         ns = tag.find('}')
@@ -64,7 +85,7 @@ class svgParser:
             tag = tag[ns+1:]
         return tag
     
-    def __printChilds(self, node, prefix):
+    def __parseChilds(self, node, prefix):
         tag = self.__removeNS(node.tag)
         if tag=="path":
             self.printPath(node.get('d'))
@@ -72,7 +93,13 @@ class svgParser:
             self.printRect(node.get('x'), node.get('x'), node.get('width'), node.get('height'))
         elif tag=="line":
             self.printLine(node.get('x1'), node.get('x1'), node.get('x2'), node.get('y2'))
+        #print prefix, tag, node.attrib
+        for child in node:
+            self.__parseChilds(child, prefix+"   ")
+
+    def __printChilds(self, node, prefix):
+        tag = self.__removeNS(node.tag)
         print prefix, tag, node.attrib
         for child in node:
-            self.__printChilds(child, prefix+"   ")
+            self.__parseChilds(child, prefix+"   ")
 
