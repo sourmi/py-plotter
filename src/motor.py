@@ -27,8 +27,6 @@ class Gpio:
 class FourPinStepperMotor(Motor):
 
     __MIN_MOVE_DELAY = 0.001
-    _delay = __MIN_MOVE_DELAY
-
     __StepCount = 8;
     __Seq = range(0, __StepCount)
     __Seq[0] = [0,1,0,0]
@@ -40,22 +38,11 @@ class FourPinStepperMotor(Motor):
     __Seq[6] = [0,0,1,0]
     __Seq[7] = [0,1,1,0]
 
-    __counter = 0;
-    __pins = range(0,4)
-    __gpio = Gpio()
-
-
-    def stop(self):
-        self.__setPinStates([0,0,0,0])
-
-    def moveForward(self, steps=1):
-        self.__doStep(1, steps)
-
-    def moveBackward(self, steps=1):
-        self.__doStep(-1, steps)
-
 
     def __init__(self, gpio, pin1, pin2, pin3, pin4, delay):
+        self._delay = min(self.__MIN_MOVE_DELAY, delay)
+        self.__counter = 0;
+        self.__pins = range(0,4)
         self.__pins[0] = pin1
         self.__pins[1] = pin2
         self.__pins[2] = pin3
@@ -75,7 +62,15 @@ class FourPinStepperMotor(Motor):
         self.stop()
         self.__counter=False
 
-    
+    def stop(self):
+        self.__setPinStates([0,0,0,0])
+
+    def moveForward(self, steps=1):
+        self.__doStep(1, steps)
+
+    def moveBackward(self, steps=1):
+        self.__doStep(-1, steps)
+
     def __setPinState(self, pin, value):
         self.__gpio.output(pin, value)
 

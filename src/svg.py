@@ -2,14 +2,15 @@ import xml.etree.ElementTree as ET
 
 class svgParser:
 
-    __fileName = ''
-    __plotter = None
-    __commands = []
-    width = 0
-    heigth = 0
 
     def __init__(self):
-        __commands = []
+        self.__commands = []
+        self.__fileName = ''
+        self.__plotter = None
+        self.__commands = []
+        self.width = 0
+        self.heigth = 0
+
 
     def getCommands(self):
         return self.__commands
@@ -85,7 +86,7 @@ class svgParser:
             tag = tag[ns+1:]
         return tag
     
-    def __parseChilds(self, node, prefix):
+    def __parseChilds(self, node):
         tag = self.__removeNS(node.tag)
         if tag=="path":
             self.printPath(node.get('d'))
@@ -93,9 +94,8 @@ class svgParser:
             self.printRect(node.get('x'), node.get('x'), node.get('width'), node.get('height'))
         elif tag=="line":
             self.printLine(node.get('x1'), node.get('x1'), node.get('x2'), node.get('y2'))
-        #print prefix, tag, node.attrib
         for child in node:
-            self.__parseChilds(child, prefix+"   ")
+            self.__parseChilds(child)
 
     def __printChilds(self, node, prefix):
         tag = self.__removeNS(node.tag)

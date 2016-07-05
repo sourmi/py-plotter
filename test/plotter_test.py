@@ -2,14 +2,14 @@ import unittest
 import plotter
 import testUtils
 
-class TestPlotter(unittest.TestCase):
+class PlotterTest(unittest.TestCase):
 
-    moves = testUtils.Movements()
-    motorX = testUtils.TestMotor("x", moves)
-    motorY = testUtils.TestMotor("y", moves)
-    plotter = plotter.Plotter(motorX, motorY)
-
-
+    def setUp(self):
+        self.moves = testUtils.Movements()
+        self.motorX = testUtils.TestMotor("x", self.moves)
+        self.motorY = testUtils.TestMotor("y", self.moves)
+        self.plotter = plotter.Plotter(self.motorX, self.motorY)
+    
     def test_threePartsSameResultAsAllInOne(self):
         self.reset()
         self.plotter.lineTo(60,30)

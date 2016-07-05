@@ -1,10 +1,8 @@
 import motor
 import unittest
+import testUtils
 
-class TestMotor(unittest.TestCase):
-
-    __gpio = motor.Gpio
-    __motor= motor.Motor
+class MotorTest(unittest.TestCase):
 
     Seq1 = [0,1,0,0]
     Seq2 = [0,1,0,1]
@@ -14,14 +12,13 @@ class TestMotor(unittest.TestCase):
     Seq6 = [1,0,1,0]
     Seq7 = [0,0,1,0]
     Seq8 = [0,1,1,0]
-
-
+    
+        
     def setUp(self):
-        self.__gpio = self.TestGpio()
+        self.__gpio = motor.Gpio
+        self.__motor= motor.Motor
+        self.__gpio = testUtils.TestGpio()
         self.__motor = motor.FourPinStepperMotor(self.__gpio, 1,2,3,4, 0)
-
-    def tearDown(self):
-        pass
 
     def test_stop(self):
         self.__gpio.clear()
@@ -32,7 +29,6 @@ class TestMotor(unittest.TestCase):
     def test_forward(self):
         self.__gpio.clear()
         self.__motor.moveForward(10)
-
         cmd = self.__gpio.getCommands()
         self.asserState(cmd, 1, self.Seq1) # initial position
         self.asserState(cmd, 2, self.Seq2)
@@ -49,7 +45,6 @@ class TestMotor(unittest.TestCase):
     def test_backward(self):
         self.__gpio.clear()
         self.__motor.moveBackward(10)
-
         cmd = self.__gpio.getCommands()
         self.asserState(cmd, 1, self.Seq1) # initial position
         self.asserState(cmd, 2, self.Seq8)
@@ -76,7 +71,6 @@ class TestMotor(unittest.TestCase):
         self.asserState(cmd, 6, self.Seq2)
         self.asserState(cmd, 7, self.Seq1)
         
-        
     def printState(self, cmd, num):
         print self.toString(cmd, num)
 
@@ -86,7 +80,6 @@ class TestMotor(unittest.TestCase):
                ,cmd[(num-1)*4+1][0], cmd[(num-1)*4+1][1] \
                ,cmd[(num-1)*4+2][0], cmd[(num-1)*4+2][1] \
                ,cmd[(num-1)*4+3][0], cmd[(num-1)*4+3][1])
-
 
     def asserState(self, cmd, num, states):
         if (
@@ -98,6 +91,3 @@ class TestMotor(unittest.TestCase):
         else:
             self.toString(cmd, num)
             self.fail("actual:"+self.toString(cmd, num)+", expected: "+str(states))
-
-if __name__ == '__main__':
-    unittest.main()

@@ -4,8 +4,8 @@ import svg
 
 class SvgTest(unittest.TestCase):
 
-  
-    svg = svg.svgParser()
+    def setUp(self):
+        self.svg = svg.svgParser()
     
     
     def test_MaxSize(self):
@@ -23,8 +23,6 @@ class SvgTest(unittest.TestCase):
         self.assertMaxSize(30,40)
         
     def assertMaxSize(self, x, y):
-        #for cmd in self.svg.getCommands():
-        #    print cmd
         self.assertEqual(x, self.svg.width)
         self.assertEqual(y, self.svg.heigth)
         
@@ -59,7 +57,6 @@ class SvgTest(unittest.TestCase):
         for cmd in self.svg.getCommands():
             cmds = cmds +cmd +"#"
         self.assertEqual(cmds, commands)
-        #self.printCommands()
 
     def printCommands(self):
         for cmd in self.svg.getCommands():

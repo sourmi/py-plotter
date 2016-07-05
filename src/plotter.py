@@ -1,10 +1,4 @@
-import motor
 
-__motorX = motor.Motor()
-__motorY = motor.Motor()
-
-__x = 0
-__y = 0
 
 class Plotter:
 
