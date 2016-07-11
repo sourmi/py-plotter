@@ -2,9 +2,10 @@
 
 class Plotter:
 
-    def __init__(self, motorX, motorY):
+    def __init__(self, motorX, motorY, tool):
         self.__motorX = motorX
         self.__motorY = motorY
+        self.__tool = tool 
         self.__x = 0
         self.__y = 0
 
@@ -29,7 +30,6 @@ class Plotter:
             return
         dx = 1.0 *(x - self.__x) / steps
         dy = 1.0 *(y - self.__y) / steps
-        #print '##', self.__x, self.__y, x, y,' ->', steps, ' dx: ', dx, ' dy: ', dy
         tx = self.__x
         ty = self.__y
         for i in range(0, int(steps)):
@@ -37,15 +37,12 @@ class Plotter:
             ty = ty + dy
             rx = round(tx)
             ry = round(ty)
-            #print tx, ty, '/', rx, ry, '/', self.__x, self.__y
             if rx <> self.__x:
                 self.__doStep(self.__motorX, dx)
                 self.__x = rx
             if ry <> self.__y:
                 self.__doStep(self.__motorY, dy)
                 self.__y = ry
-
-
 
     def __doStep(self, motor, direction):
         if (direction>0):
@@ -54,10 +51,10 @@ class Plotter:
             motor.moveBackward()
 
     def plotOn(self):
-        pass
+        self.__tool.on()
     
     def plotOff(self):
-        pass
+        self.__tool.off()
     
     def getX(self):
         return self.__x

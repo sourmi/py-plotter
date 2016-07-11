@@ -26,6 +26,15 @@ class SvgTest(unittest.TestCase):
         self.assertEqual(x, self.svg.width)
         self.assertEqual(y, self.svg.heigth)
         
+
+    def test_printPath2(self):
+        self.svg.clear()
+        self.svg.printPath2("m403.43 677.18-17.775-21.901-25.393-13.014-12.696 0.63482-12.062 4.4438-4.1264 6.983h-10.475l8.2527 5.7134")
+        #self.svg.printPath2("M 1,2 L 3,4 -5,6 -7,8 1234567,7654321")
+        #self.svg.printPath2("M1,2L3,4-5,6-7,8 1234567,7654321")
+        self.assertCommands("M 1,2#L 3,4#L -5,6#L -7,8#L 1234567,7654321#")
+
+    
     def test_printPath(self):
         self.svg.clear()
         self.svg.printPath("M 1,2 L 3,4 5,6 7,8 1234567,7654321")
