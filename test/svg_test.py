@@ -36,6 +36,9 @@ class SvgTest(unittest.TestCase):
         self.svg.clear()
         self.svg.printPath("M1.1,2.2L3.3,4.4-5.5,6.6-7.7,8.8 1234567.9,7654321.9z")
         self.assertCommands("M 1.1,2.2#L 3.3,4.4#L -5.5,6.6#L -7.7,8.8#L 1234567.9,7654321.9#L 1.1,2.2#")
+        self.svg.clear()
+        self.svg.printPath("M0,28l8 5 3-1")
+        self.assertCommands("M 0,28#L 8,33#L 11,32#")
         
     def test_printPath_With_H_and_V(self):
         self.svg.printPath("M 1,2 H 3 V 4 L 5,6")

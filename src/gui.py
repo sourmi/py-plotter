@@ -40,16 +40,16 @@ fileName = '../horse-2.svg'
 #fileName = '../tux-caveman_02.svg'
 p = svg.SvgParser()
 p.parseFile(fileName)
-sx = int(p.startX)
-sy = int(p.startY)
+sx = int(p.startX) 
+sy = int(p.startY) 
 wx = int(p.width ) - sx
 wy = int(p.heigth) - sy
 fx = float(float(width-20) / float(wx )) 
 fy = float(float(width-20) / float(wy )) 
 
-print p.startX, p.width , sx, wx, fx
-print p.startY, p.heigth, sy, wy, fy
-
+print 'X:', p.startX, p.width , sx, wx, fx
+print 'Y:', p.startY, p.heigth, sy, wy, fy
+count = 0
 factor = min(fx, fy)
 print factor
 for cmd in p.getCommands():
@@ -58,11 +58,12 @@ for cmd in p.getCommands():
     coords = parts[1].split(',')
     x = int((float(coords[0])-sx)*factor) +1
     y = int((float(coords[1])-sy)*factor) +1
-    print coords[0], sx, x, y, tool.mode
+    print count, coords[0], sx, tool.mode, x, y
     if mode=='M':
         plotter.moveTo(x, y)
     else:
         plotter.lineTo(x, y)
+    count = count +1
 
 
 #for i in range(img.size[0]):    # for every pixel:

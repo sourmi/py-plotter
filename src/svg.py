@@ -55,7 +55,6 @@ class SvgParser(object):
     
         def next(self):
             n = self.nextItem()
-            self.lastCmd = n
             return n
     
         def nextItem(self):
@@ -64,11 +63,12 @@ class SvgParser(object):
             if m in 'LlMmZzCcHhVv':
                 cmd = SvgParser.PathCommand(m)
             else:
-                cmd = SvgParser.PathCommand(self.lastCmd.cmd)
+                cmd = SvgParser.PathCommand(self.lastCmd)
                 cmd.addCoord(m)
             while not cmd.isReady():
                 n = self.__iterator.next().group()
                 cmd.addCoord(n)
+            self.lastCmd = cmd.cmd
             return cmd
 
 
@@ -177,7 +177,7 @@ class SvgParser(object):
         for c in p:
             self.replaceShortcuts(x, y, c)
             self.replaceZ(c, first)
-            self.relativeToAbsoluteCoords(x, y, c)            
+            self.relativeToAbsoluteCoords(x, y, c)
             self.roundCoords(c)
             x = c.coord1
             y = c.coord2
