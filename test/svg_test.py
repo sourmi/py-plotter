@@ -5,7 +5,7 @@ import svg
 class SvgTest(unittest.TestCase):
 
     def setUp(self):
-        self.svg = svg.svgParser()
+        self.svg = svg.SvgParser()
     
     
     def test_MaxSize(self):
@@ -27,18 +27,23 @@ class SvgTest(unittest.TestCase):
         self.assertEqual(y, self.svg.heigth)
         
 
-    def test_printPath2(self):
-        self.svg.clear()
-        self.svg.printPath2("m403.43 677.18-17.775-21.901-25.393-13.014-12.696 0.63482-12.062 4.4438-4.1264 6.983h-10.475l8.2527 5.7134")
-        #self.svg.printPath2("M 1,2 L 3,4 -5,6 -7,8 1234567,7654321")
-        #self.svg.printPath2("M1,2L3,4-5,6-7,8 1234567,7654321")
-        self.assertCommands("M 1,2#L 3,4#L -5,6#L -7,8#L 1234567,7654321#")
-
-    
     def test_printPath(self):
-        self.svg.clear()
         self.svg.printPath("M 1,2 L 3,4 5,6 7,8 1234567,7654321")
         self.assertCommands("M 1,2#L 3,4#L 5,6#L 7,8#L 1234567,7654321#")
+        self.svg.clear()
+        self.svg.printPath("M1,2L3,4-5,6-7,8 1234567,7654321z")
+        self.assertCommands("M 1,2#L 3,4#L -5,6#L -7,8#L 1234567,7654321#L 1,2#")
+        self.svg.clear()
+        self.svg.printPath("M1.1,2.2L3.3,4.4-5.5,6.6-7.7,8.8 1234567.9,7654321.9z")
+        self.assertCommands("M 1.1,2.2#L 3.3,4.4#L -5.5,6.6#L -7.7,8.8#L 1234567.9,7654321.9#L 1.1,2.2#")
+        
+    def test_printPath_With_H_and_V(self):
+        self.svg.printPath("M 1,2 H 3 V 4 L 5,6")
+        self.assertCommands("M 1,2#L 3,2#L 3,4#L 5,6#")
+
+    def test_printPath_With_lowerletter(self):
+        self.svg.printPath("M 1,2 h 3 v 4 l 5,6m1,1")
+        self.assertCommands("M 1,2#L 4,2#L 4,6#L 9,12#M 10,13#")
 
     def test_printPath_WithEndingZ(self):
         self.svg.clear()

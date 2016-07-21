@@ -1,7 +1,75 @@
 import xml.etree.ElementTree as ET
 import re
+import cmd
 
-class svgParser:
+class SvgParser(object):
+
+    class PathCommand(object):
+        def __init__(self, cmd, coord1=None, coord2=None):
+            self.cmd = cmd
+            self.coord1 = coord1
+            self.coord2 = coord2
+            self.coCount = self.determineNeededCoords() 
+        
+        def isReady(self):
+            if self.coCount == 0:
+                return True
+            if self.coCount == 1:
+                if self.coord1 != None:
+                    return True
+            if self.coCount == 2:
+                if self.coord1 != None and self.coord2 != None:
+                    return True
+            return False
+    
+        def addCoord(self, co):
+            if self.coCount==0:
+                # FAIL!
+                return
+            if self.coord1==None:
+                self.coord1 = co
+            elif self.coord2==None:
+                self.coord2 = co
+            else:
+                # FAIL!
+                pass
+                
+    
+        def determineNeededCoords(self):
+            if self.cmd in 'Zz':
+                return 0
+            elif self.cmd in 'HhVv':
+                return 1
+            return 2
+
+
+    class PathParser(object):
+        def __init__(self, d):
+            p = re.compile('([a-zA-Z]{1}|-?[0-9.]+)')
+            self.__iterator = p.finditer(d)
+            self.commands = ()
+            self.lastCmd = None
+        
+        def __iter__(self):
+            return self
+    
+        def next(self):
+            n = self.nextItem()
+            self.lastCmd = n
+            return n
+    
+        def nextItem(self):
+            match = self.__iterator.next()
+            m = match.group()
+            if m in 'LlMmZzCcHhVv':
+                cmd = SvgParser.PathCommand(m)
+            else:
+                cmd = SvgParser.PathCommand(self.lastCmd.cmd)
+                cmd.addCoord(m)
+            while not cmd.isReady():
+                n = self.__iterator.next().group()
+                cmd.addCoord(n)
+            return cmd
 
 
     def __init__(self):
@@ -48,7 +116,76 @@ class svgParser:
         self.__append("L", x2, y2)
         self.__append("L", x2, y )
         self.__append("L", x , y )
+
+
+    def relativeToAbsoluteCoords(self, x,y, Command):
+        if Command.cmd.islower():
+            if not Command.coord1:
+                c1 = x
+            else:
+                c1 = float(Command.coord1) + float(x)
+            if not Command.coord2:
+                c2 = y
+            else:
+                c2 = float(Command.coord2) + float(y)
+            Command.cmd = Command.cmd.upper()
+            Command.coord1 = c1
+            Command.coord2 = c2
+        return Command
     
+    def replaceShortcuts(self, x, y, Command):   
+        if Command.cmd =='h':
+            Command.coord2 = 0
+            Command.cmd = 'l'
+        if Command.cmd =='H':
+            Command.coord2 = y
+            Command.cmd = 'L'
+        if Command.cmd =='V':
+            Command.coord2 = Command.coord1
+            Command.coord1 = x
+            Command.cmd = 'L'
+        if Command.cmd =='v':
+            Command.coord2 = Command.coord1
+            Command.coord1 = 0
+            Command.cmd = 'l'
+
+    def replaceZ(self, Command, first):
+        if first:
+            if Command.cmd in 'zZ':
+                Command.cmd = 'L'
+                Command.coord1 = first.coord1
+                Command.coord2 = first.coord2
+
+    def roundString(self, s):
+        if s and '.' in s:
+            s = s.rstrip('0')
+            s = s.rstrip('.')
+        return s
+            
+    def roundCoords(self, Command):
+        Command.coord1 = self.roundString(str(Command.coord1))
+        Command.coord2 = self.roundString(str(Command.coord2))
+        return Command
+
+    def printPath(self, d):
+        return self.printPath3(d)
+
+    def printPath3(self, d):
+        p = SvgParser.PathParser(d)
+        x = y = 0
+        first = None
+        for c in p:
+            self.replaceShortcuts(x, y, c)
+            self.replaceZ(c, first)
+            self.relativeToAbsoluteCoords(x, y, c)            
+            self.roundCoords(c)
+            x = c.coord1
+            y = c.coord2
+            if not first:
+                first = c
+            self.__append(c.cmd, c.coord1, c.coord2)
+            
+        
     def printPath1(self, d):
         parts = str(d).split()
         i =0;
@@ -66,20 +203,12 @@ class svgParser:
                 dest = parts[i]
                 self.__append(mode, dest)
             i = i+1
-            
-    def printPath(self, d):
+        
+    def printPath2(self, d):
         p = re.compile('([a-zA-Z]{1}|-?[0-9.]+)')
         iterator = p.finditer(d)
-        x1 = y1 = None
-        x = 0
-        y = 0
-        cmd = None
-        act = None
-        co1 = None
-        co2 = None
-        co = None
-        coords = 0
-        first = True
+        x = y =  coords= 0
+        x1 = y1 = cmd = act = co1 = co2 = co = None
         ready = False
         for match in iterator:
             m = match.group()
@@ -87,7 +216,7 @@ class svgParser:
                 act = m
                 cmd = act.upper()
                 if cmd in 'Zz':
-                    self.__append(cmd, x1, y1)
+                    self.__append('L', x1, y1)
                 elif cmd in 'HhVv':
                     coords = 1
                 else:
@@ -115,24 +244,19 @@ class svgParser:
                         co2 = co1
                         co1 = 0
                     if act.islower():
-                        #print '###########', cmd,act, co1,co2, x, y
                         co1 = float(co1)+ float(x)
                         co2 = float(co2)+ float(y)
-                    if act in 'HVhvMm':
-                        cmd = 'L'
                     x = co1
                     y = co2
-                    if first:
+                    if act in 'HVhv':
                         cmd = 'L'
-                    else:
-                        cmd = 'L'
-                    print '#########', cmd, x, y
+                    x = self.roundString(str(x))
+                    y = self.roundString(str(y))
                     if not x1:
                         x1 = x
                         y1 = y
                     self.__append(cmd, x, y)
                     ready = False
-                    first = False
                     co1 = None
                     co2 = None
     

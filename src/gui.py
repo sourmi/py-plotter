@@ -1,7 +1,7 @@
 import Image
 import plotter, motor, svg
 
-width = 600
+width = 550
 
 img = Image.new( 'RGB', (width,width), "black") # create a new black image
 pixels = img.load() # create the pixel map
@@ -38,7 +38,7 @@ plotter = plotter.Plotter(xm,ym, tool)
 #fileName = '../x.svg'
 fileName = '../horse-2.svg'
 #fileName = '../tux-caveman_02.svg'
-p = svg.svgParser()
+p = svg.SvgParser()
 p.parseFile(fileName)
 sx = int(p.startX)
 sy = int(p.startY)
@@ -58,7 +58,7 @@ for cmd in p.getCommands():
     coords = parts[1].split(',')
     x = int((float(coords[0])-sx)*factor) +1
     y = int((float(coords[1])-sy)*factor) +1
-    #print coords[0], sx, x, tool.mode
+    print coords[0], sx, x, y, tool.mode
     if mode=='M':
         plotter.moveTo(x, y)
     else:
